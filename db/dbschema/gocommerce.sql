@@ -3,7 +3,7 @@ CREATE TABLE "users" (
   "first_name" VARCHAR(50) NOT NULL,
   "last_name" VARCHAR(50) NOT NULL,
   "email" VARCHAR(255) UNIQUE NOT NULL,
-  "password" VARCHAR(255) NOT NULL,
+  "hashed_password" VARCHAR(255) NOT NULL,
   "phone" INTEGER UNIQUE NOT NULL,
   "is_admin" BOOLEAN DEFAULT false,
   "otp" VARCHAR(255),
@@ -33,7 +33,7 @@ CREATE TABLE "admins" (
   "first_name" VARCHAR(50) NOT NULL,
   "last_name" VARCHAR(50) NOT NULL,
   "email" VARCHAR(255) UNIQUE NOT NULL,
-  "password" VARCHAR(255) NOT NULL,
+  "hashed_password" VARCHAR(255) NOT NULL,
   "phone" INTEGER UNIQUE NOT NULL,
   "is_admin" BOOLEAN DEFAULT true
 );
