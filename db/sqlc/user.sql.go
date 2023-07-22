@@ -7,7 +7,7 @@ package db
 
 import (
 	"context"
-	"database/sql"
+	"time"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -17,25 +17,19 @@ INSERT INTO users (
     email,
     hashed_password,
     phone,
-    otp,
-    is_blocked,
-    created_at,
-    updated_at
+    otp
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9
-) RETURNING id, first_name, last_name, email, hashed_password, phone, otp, is_blocked, created_at, updated_at
+    $1, $2, $3, $4, $5, $6
+) RETURNING id, first_name, last_name, email, hashed_password, phone, otp, password_changed_at, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	FirstName      string         `json:"first_name"`
-	LastName       string         `json:"last_name"`
-	Email          string         `json:"email"`
-	HashedPassword string         `json:"hashed_password"`
-	Phone          int32          `json:"phone"`
-	Otp            sql.NullString `json:"otp"`
-	IsBlocked      sql.NullBool   `json:"is_blocked"`
-	CreatedAt      sql.NullTime   `json:"created_at"`
-	UpdatedAt      sql.NullTime   `json:"updated_at"`
+	FirstName      string `json:"first_name"`
+	LastName       string `json:"last_name"`
+	Email          string `json:"email"`
+	HashedPassword string `json:"hashed_password"`
+	Phone          int32  `json:"phone"`
+	Otp            string `json:"otp"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -46,9 +40,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.HashedPassword,
 		arg.Phone,
 		arg.Otp,
-		arg.IsBlocked,
-		arg.CreatedAt,
-		arg.UpdatedAt,
 	)
 	var i User
 	err := row.Scan(
@@ -59,7 +50,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.HashedPassword,
 		&i.Phone,
 		&i.Otp,
-		&i.IsBlocked,
+		&i.PasswordChangedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -76,11 +67,11 @@ func (q *Queries) DeleteUser(ctx context.Context, dollar_1 interface{}) error {
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, first_name, last_name, email, hashed_password, phone, otp, is_blocked, created_at, updated_at FROM users 
+SELECT id, first_name, last_name, email, hashed_password, phone, otp, password_changed_at, created_at, updated_at FROM users 
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetUserByID(ctx context.Context, id int32) (User, error) {
+func (q *Queries) GetUserByID(ctx context.Context, id int64) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUserByID, id)
 	var i User
 	err := row.Scan(
@@ -91,7 +82,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (User, error) {
 		&i.HashedPassword,
 		&i.Phone,
 		&i.Otp,
-		&i.IsBlocked,
+		&i.PasswordChangedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -99,7 +90,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (User, error) {
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, first_name, last_name, email, hashed_password, phone, otp, is_blocked, created_at, updated_at FROM users
+SELECT id, first_name, last_name, email, hashed_password, phone, otp, password_changed_at, created_at, updated_at FROM users
 `
 
 func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
@@ -119,7 +110,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 			&i.HashedPassword,
 			&i.Phone,
 			&i.Otp,
-			&i.IsBlocked,
+			&i.PasswordChangedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -143,20 +134,20 @@ UPDATE users SET
     hashed_password = $3,
     phone = $4,
     otp = $5,
-    is_blocked = $6,
+    password_changed_at = $6,
     updated_at = $7
-WHERE id = $8 RETURNING id, first_name, last_name, email, hashed_password, phone, otp, is_blocked, created_at, updated_at
+WHERE id = $8 RETURNING id, first_name, last_name, email, hashed_password, phone, otp, password_changed_at, created_at, updated_at
 `
 
 type UpdateUserParams struct {
-	FirstName      string         `json:"first_name"`
-	LastName       string         `json:"last_name"`
-	HashedPassword string         `json:"hashed_password"`
-	Phone          int32          `json:"phone"`
-	Otp            sql.NullString `json:"otp"`
-	IsBlocked      sql.NullBool   `json:"is_blocked"`
-	UpdatedAt      sql.NullTime   `json:"updated_at"`
-	ID             int32          `json:"id"`
+	FirstName         string    `json:"first_name"`
+	LastName          string    `json:"last_name"`
+	HashedPassword    string    `json:"hashed_password"`
+	Phone             int32     `json:"phone"`
+	Otp               string    `json:"otp"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	UpdatedAt         time.Time `json:"updated_at"`
+	ID                int64     `json:"id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
@@ -166,7 +157,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.HashedPassword,
 		arg.Phone,
 		arg.Otp,
-		arg.IsBlocked,
+		arg.PasswordChangedAt,
 		arg.UpdatedAt,
 		arg.ID,
 	)
@@ -179,7 +170,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.HashedPassword,
 		&i.Phone,
 		&i.Otp,
-		&i.IsBlocked,
+		&i.PasswordChangedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

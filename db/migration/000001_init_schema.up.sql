@@ -1,19 +1,31 @@
 CREATE TABLE "users" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "first_name" VARCHAR(50) NOT NULL,
   "last_name" VARCHAR(50) NOT NULL,
   "email" VARCHAR(255) UNIQUE NOT NULL,
   "hashed_password" VARCHAR(255) NOT NULL,
   "phone" INTEGER UNIQUE NOT NULL,
-  "otp" VARCHAR(255),
-  "is_blocked" BOOLEAN DEFAULT false,
-  "created_at" timestamp,
-  "updated_at" timestamp
+  "otp" VARCHAR(255) NOT NULL,
+  "password_changed_at" timestamptz NOT NULL DEFAULT('0001-01-01 00:00:00Z'),  
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
+CREATE TABLE "sessions" (
+  "id" uuid PRIMARY KEY,
+  "user_id" bigint NOT NULL,
+  "refresh_token" varchar NOT NULL,
+  "user_agent" varchar NOT NULL,
+  "client_ip" varchar NOT NULL,
+  "is_blocked" boolean NOT NULL DEFAULT false,
+  "expires_at" timestamptz NOT NULL,
+  "created_at" timestamptz DEFAULT (now())
+);
+
+
 CREATE TABLE "addresses" (
-  "addressid" SERIAL PRIMARY KEY,
-  "userid" INTEGER,
+  "addressid" bigserial PRIMARY KEY,
+  "user_id" bigint NOT NULL,
   "name" VARCHAR(255) NOT NULL,
   "phoneno" VARCHAR(20) NOT NULL,
   "houseno" VARCHAR(100) NOT NULL,
@@ -28,27 +40,27 @@ CREATE TABLE "addresses" (
 );
 
 CREATE TABLE "admins" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "first_name" VARCHAR(50) NOT NULL,
   "last_name" VARCHAR(50) NOT NULL,
   "email" VARCHAR(255) UNIQUE NOT NULL,
   "hashed_password" VARCHAR(255) NOT NULL,
   "phone" INTEGER UNIQUE NOT NULL,
-  "is_admin" BOOLEAN DEFAULT true
+  "is_admin" boolean NOT NULL DEFAULT false
 );
 
 CREATE TABLE "catogeries" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "catogery_name" VARCHAR(255)
 );
 
 CREATE TABLE "brands" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "brand_name" VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE "products" (
-  "product_id" SERIAL PRIMARY KEY,
+  "product_id" bigserial PRIMARY KEY,
   "product_name" VARCHAR(255) NOT NULL,
   "description" TEXT NOT NULL,
   "stock" INTEGER NOT NULL,
@@ -58,28 +70,28 @@ CREATE TABLE "products" (
 );
 
 CREATE TABLE "carts" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "product_id" INTEGER,
   "quantity" INTEGER NOT NULL,
   "price" INTEGER NOT NULL,
   "total_price" INTEGER NOT NULL,
-  "userid" INTEGER
+  "user_id" INTEGER
 );
 
 CREATE TABLE "images" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "product_id" INTEGER,
   "image" VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE "wishlists" (
-  "id" SERIAL PRIMARY KEY,
-  "userid" INTEGER,
+  "id" bigserial PRIMARY KEY,
+  "user_id" INTEGER,
   "product_id" INTEGER
 );
 
 CREATE TABLE "payments" (
-  "payment_id" SERIAL PRIMARY KEY,
+  "payment_id" bigserial PRIMARY KEY,
   "user_id" INTEGER,
   "payment_method" VARCHAR(255) NOT NULL,
   "total_amount" INTEGER NOT NULL,
@@ -88,39 +100,39 @@ CREATE TABLE "payments" (
 );
 
 CREATE TABLE "order_details" (
-  "oderid" SERIAL PRIMARY KEY,
-  "userid" INTEGER,
+  "oderid" bigserial PRIMARY KEY,
+  "user_id" INTEGER,
   "addressid" INTEGER,
   "payment_id" INTEGER,
   "oder_item_id" INTEGER,
   "product_id" INTEGER,
   "quantity" INTEGER NOT NULL,
   "status" VARCHAR(255) NOT NULL,
-  "created_at" timestamp,
-  "updated_at" timestamp
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "oder_items" (
-  "order_id" SERIAL PRIMARY KEY,
+  "order_id" bigserial PRIMARY KEY,
   "user_id_no" INTEGER NOT NULL,
   "total_amount" INTEGER NOT NULL,
   "payment_id" INTEGER,
   "order_status" VARCHAR(255),
   "add_id" INTEGER,
-  "created_at" timestamp,
-  "updated_at" timestamp
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "coupons" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "coupon_code" VARCHAR(255),
   "discount_price" FLOAT,
-  "created_at" timestamp,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
   "expired" timestamp
 );
 
 CREATE TABLE "razorpays" (
-  "userid" INTEGER NOT NULL,
+  "user_id" INTEGER NOT NULL,
   "razorpaymentid" VARCHAR(255) PRIMARY KEY,
   "razorpayorderid" VARCHAR(255),
   "signature" VARCHAR(255),
@@ -128,20 +140,22 @@ CREATE TABLE "razorpays" (
 );
 
 CREATE TABLE "wallets" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "user_id" INTEGER,
   "amount" FLOAT
 );
 
 CREATE TABLE "wallet_history" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "user_id" INTEGER,
   "amount" FLOAT,
   "transction_type" VARCHAR(255),
   "date" timestamp
 );
 
-ALTER TABLE "addresses" ADD FOREIGN KEY ("userid") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "sessions" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+
+ALTER TABLE "addresses" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "products" ADD FOREIGN KEY ("catogery_id") REFERENCES "catogeries" ("id");
 
@@ -149,17 +163,17 @@ ALTER TABLE "products" ADD FOREIGN KEY ("brand_id") REFERENCES "brands" ("id");
 
 ALTER TABLE "carts" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("product_id");
 
-ALTER TABLE "carts" ADD FOREIGN KEY ("userid") REFERENCES "users" ("id");
+ALTER TABLE "carts" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "images" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("product_id");
 
-ALTER TABLE "wishlists" ADD FOREIGN KEY ("userid") REFERENCES "users" ("id");
+ALTER TABLE "wishlists" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "wishlists" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("product_id");
 
 ALTER TABLE "payments" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
-ALTER TABLE "order_details" ADD FOREIGN KEY ("userid") REFERENCES "users" ("id");
+ALTER TABLE "order_details" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "order_details" ADD FOREIGN KEY ("addressid") REFERENCES "addresses" ("addressid");
 
@@ -175,7 +189,7 @@ ALTER TABLE "oder_items" ADD FOREIGN KEY ("payment_id") REFERENCES "payments" ("
 
 ALTER TABLE "oder_items" ADD FOREIGN KEY ("add_id") REFERENCES "addresses" ("addressid");
 
-ALTER TABLE "razorpays" ADD FOREIGN KEY ("userid") REFERENCES "users" ("id");
+ALTER TABLE "razorpays" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "wallets" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 

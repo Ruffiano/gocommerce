@@ -5,12 +5,9 @@ INSERT INTO users (
     email,
     hashed_password,
     phone,
-    otp,
-    is_blocked,
-    created_at,
-    updated_at
+    otp
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9
+    $1, $2, $3, $4, $5, $6
 ) RETURNING *;
 
 -- name: GetUserByID :one
@@ -24,7 +21,7 @@ UPDATE users SET
     hashed_password = $3,
     phone = $4,
     otp = $5,
-    is_blocked = $6,
+    password_changed_at = $6,
     updated_at = $7
 WHERE id = $8 RETURNING *;
 

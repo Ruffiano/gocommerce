@@ -1,5 +1,5 @@
 CREATE TABLE "users" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "first_name" VARCHAR(50) NOT NULL,
   "last_name" VARCHAR(50) NOT NULL,
   "email" VARCHAR(255) UNIQUE NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE "users" (
 );
 
 CREATE TABLE "addresses" (
-  "addressid" SERIAL PRIMARY KEY,
+  "addressid" bigserial PRIMARY KEY,
   "userid" INTEGER,
   "name" VARCHAR(255) NOT NULL,
   "phoneno" VARCHAR(20) NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE "addresses" (
 );
 
 CREATE TABLE "admins" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "first_name" VARCHAR(50) NOT NULL,
   "last_name" VARCHAR(50) NOT NULL,
   "email" VARCHAR(255) UNIQUE NOT NULL,
@@ -39,17 +39,17 @@ CREATE TABLE "admins" (
 );
 
 CREATE TABLE "catogeries" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "catogery_name" VARCHAR(255)
 );
 
 CREATE TABLE "brands" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "brand_name" VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE "products" (
-  "product_id" SERIAL PRIMARY KEY,
+  "product_id" bigserial PRIMARY KEY,
   "product_name" VARCHAR(255) NOT NULL,
   "description" TEXT NOT NULL,
   "stock" INTEGER NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE "products" (
 );
 
 CREATE TABLE "carts" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "product_id" INTEGER,
   "quantity" INTEGER NOT NULL,
   "price" INTEGER NOT NULL,
@@ -68,19 +68,19 @@ CREATE TABLE "carts" (
 );
 
 CREATE TABLE "images" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "product_id" INTEGER,
   "image" VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE "wishlists" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "userid" INTEGER,
   "product_id" INTEGER
 );
 
 CREATE TABLE "payments" (
-  "payment_id" SERIAL PRIMARY KEY,
+  "payment_id" bigserial PRIMARY KEY,
   "user_id" INTEGER,
   "payment_method" VARCHAR(255) NOT NULL,
   "total_amount" INTEGER NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE "payments" (
 );
 
 CREATE TABLE "order_details" (
-  "oderid" SERIAL PRIMARY KEY,
+  "oderid" bigserial PRIMARY KEY,
   "userid" INTEGER,
   "addressid" INTEGER,
   "payment_id" INTEGER,
@@ -102,7 +102,7 @@ CREATE TABLE "order_details" (
 );
 
 CREATE TABLE "oder_items" (
-  "order_id" SERIAL PRIMARY KEY,
+  "order_id" bigserial PRIMARY KEY,
   "user_id_no" INTEGER NOT NULL,
   "total_amount" INTEGER NOT NULL,
   "payment_id" INTEGER,
@@ -113,7 +113,7 @@ CREATE TABLE "oder_items" (
 );
 
 CREATE TABLE "coupons" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "coupon_code" VARCHAR(255),
   "discount_price" FLOAT,
   "created_at" timestamp,
@@ -129,13 +129,13 @@ CREATE TABLE "razorpays" (
 );
 
 CREATE TABLE "wallets" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "user_id" INTEGER,
   "amount" FLOAT
 );
 
 CREATE TABLE "wallet_history" (
-  "id" SERIAL PRIMARY KEY,
+  "id" bigserial PRIMARY KEY,
   "user_id" INTEGER,
   "amount" FLOAT,
   "transction_type" VARCHAR(255),

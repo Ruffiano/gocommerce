@@ -1,6 +1,6 @@
 -- name: CreateAddress :one
 INSERT INTO addresses (
-    userid,
+    user_id,
     name,
     phoneno,
     houseno,
@@ -22,7 +22,7 @@ WHERE addressid = $1 LIMIT 1;
 
 -- name: UpdateAddress :one
 UPDATE addresses SET
-    userid = $1,
+    user_id = $1,
     name = $2,
     phoneno = $3,
     houseno = $4,

@@ -6,23 +6,28 @@ package db
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
 	CreateAddress(ctx context.Context, arg CreateAddressParams) (Address, error)
 	CreateAdmin(ctx context.Context, arg CreateAdminParams) (Admin, error)
+	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
-	DeleteAddress(ctx context.Context, addressid int32) error
-	DeleteAdmin(ctx context.Context, id int32) error
+	DeleteAddress(ctx context.Context, addressid int64) error
+	DeleteAdmin(ctx context.Context, id int64) error
 	DeleteUser(ctx context.Context, dollar_1 interface{}) error
-	GetAddressByID(ctx context.Context, addressid int32) (Address, error)
-	GetAdminByID(ctx context.Context, id int32) (Admin, error)
-	GetUserByID(ctx context.Context, id int32) (User, error)
+	GetAddressByID(ctx context.Context, addressid int64) (Address, error)
+	GetAdminByID(ctx context.Context, id int64) (Admin, error)
+	GetSession(ctx context.Context, id uuid.UUID) (Session, error)
+	GetUserByID(ctx context.Context, id int64) (User, error)
 	ListAddresses(ctx context.Context) ([]Address, error)
 	ListAdmins(ctx context.Context) ([]Admin, error)
 	ListUsers(ctx context.Context) ([]User, error)
 	UpdateAddress(ctx context.Context, arg UpdateAddressParams) (Address, error)
 	UpdateAdmin(ctx context.Context, arg UpdateAdminParams) (Admin, error)
+	UpdateSession(ctx context.Context, arg UpdateSessionParams) (Session, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
 

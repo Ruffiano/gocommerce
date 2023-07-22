@@ -12,7 +12,7 @@ import (
 
 const createAddress = `-- name: CreateAddress :one
 INSERT INTO addresses (
-    userid,
+    user_id,
     name,
     phoneno,
     houseno,
@@ -26,27 +26,27 @@ INSERT INTO addresses (
     defaultadd
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
-) RETURNING addressid, userid, name, phoneno, houseno, area, landmark, city, pincode, district, state, country, defaultadd
+) RETURNING addressid, user_id, name, phoneno, houseno, area, landmark, city, pincode, district, state, country, defaultadd
 `
 
 type CreateAddressParams struct {
-	Userid     sql.NullInt32 `json:"userid"`
-	Name       string        `json:"name"`
-	Phoneno    string        `json:"phoneno"`
-	Houseno    string        `json:"houseno"`
-	Area       string        `json:"area"`
-	Landmark   string        `json:"landmark"`
-	City       string        `json:"city"`
-	Pincode    string        `json:"pincode"`
-	District   string        `json:"district"`
-	State      string        `json:"state"`
-	Country    string        `json:"country"`
-	Defaultadd sql.NullBool  `json:"defaultadd"`
+	UserID     int64        `json:"user_id"`
+	Name       string       `json:"name"`
+	Phoneno    string       `json:"phoneno"`
+	Houseno    string       `json:"houseno"`
+	Area       string       `json:"area"`
+	Landmark   string       `json:"landmark"`
+	City       string       `json:"city"`
+	Pincode    string       `json:"pincode"`
+	District   string       `json:"district"`
+	State      string       `json:"state"`
+	Country    string       `json:"country"`
+	Defaultadd sql.NullBool `json:"defaultadd"`
 }
 
 func (q *Queries) CreateAddress(ctx context.Context, arg CreateAddressParams) (Address, error) {
 	row := q.db.QueryRowContext(ctx, createAddress,
-		arg.Userid,
+		arg.UserID,
 		arg.Name,
 		arg.Phoneno,
 		arg.Houseno,
@@ -62,7 +62,7 @@ func (q *Queries) CreateAddress(ctx context.Context, arg CreateAddressParams) (A
 	var i Address
 	err := row.Scan(
 		&i.Addressid,
-		&i.Userid,
+		&i.UserID,
 		&i.Name,
 		&i.Phoneno,
 		&i.Houseno,
@@ -82,22 +82,22 @@ const deleteAddress = `-- name: DeleteAddress :exec
 DELETE FROM addresses WHERE addressid = $1
 `
 
-func (q *Queries) DeleteAddress(ctx context.Context, addressid int32) error {
+func (q *Queries) DeleteAddress(ctx context.Context, addressid int64) error {
 	_, err := q.db.ExecContext(ctx, deleteAddress, addressid)
 	return err
 }
 
 const getAddressByID = `-- name: GetAddressByID :one
-SELECT addressid, userid, name, phoneno, houseno, area, landmark, city, pincode, district, state, country, defaultadd FROM addresses 
+SELECT addressid, user_id, name, phoneno, houseno, area, landmark, city, pincode, district, state, country, defaultadd FROM addresses 
 WHERE addressid = $1 LIMIT 1
 `
 
-func (q *Queries) GetAddressByID(ctx context.Context, addressid int32) (Address, error) {
+func (q *Queries) GetAddressByID(ctx context.Context, addressid int64) (Address, error) {
 	row := q.db.QueryRowContext(ctx, getAddressByID, addressid)
 	var i Address
 	err := row.Scan(
 		&i.Addressid,
-		&i.Userid,
+		&i.UserID,
 		&i.Name,
 		&i.Phoneno,
 		&i.Houseno,
@@ -114,7 +114,7 @@ func (q *Queries) GetAddressByID(ctx context.Context, addressid int32) (Address,
 }
 
 const listAddresses = `-- name: ListAddresses :many
-SELECT addressid, userid, name, phoneno, houseno, area, landmark, city, pincode, district, state, country, defaultadd FROM addresses
+SELECT addressid, user_id, name, phoneno, houseno, area, landmark, city, pincode, district, state, country, defaultadd FROM addresses
 `
 
 func (q *Queries) ListAddresses(ctx context.Context) ([]Address, error) {
@@ -128,7 +128,7 @@ func (q *Queries) ListAddresses(ctx context.Context) ([]Address, error) {
 		var i Address
 		if err := rows.Scan(
 			&i.Addressid,
-			&i.Userid,
+			&i.UserID,
 			&i.Name,
 			&i.Phoneno,
 			&i.Houseno,
@@ -156,7 +156,7 @@ func (q *Queries) ListAddresses(ctx context.Context) ([]Address, error) {
 
 const updateAddress = `-- name: UpdateAddress :one
 UPDATE addresses SET
-    userid = $1,
+    user_id = $1,
     name = $2,
     phoneno = $3,
     houseno = $4,
@@ -168,28 +168,28 @@ UPDATE addresses SET
     state = $10,
     country = $11,
     defaultadd = $12
-WHERE addressid = $13 RETURNING addressid, userid, name, phoneno, houseno, area, landmark, city, pincode, district, state, country, defaultadd
+WHERE addressid = $13 RETURNING addressid, user_id, name, phoneno, houseno, area, landmark, city, pincode, district, state, country, defaultadd
 `
 
 type UpdateAddressParams struct {
-	Userid     sql.NullInt32 `json:"userid"`
-	Name       string        `json:"name"`
-	Phoneno    string        `json:"phoneno"`
-	Houseno    string        `json:"houseno"`
-	Area       string        `json:"area"`
-	Landmark   string        `json:"landmark"`
-	City       string        `json:"city"`
-	Pincode    string        `json:"pincode"`
-	District   string        `json:"district"`
-	State      string        `json:"state"`
-	Country    string        `json:"country"`
-	Defaultadd sql.NullBool  `json:"defaultadd"`
-	Addressid  int32         `json:"addressid"`
+	UserID     int64        `json:"user_id"`
+	Name       string       `json:"name"`
+	Phoneno    string       `json:"phoneno"`
+	Houseno    string       `json:"houseno"`
+	Area       string       `json:"area"`
+	Landmark   string       `json:"landmark"`
+	City       string       `json:"city"`
+	Pincode    string       `json:"pincode"`
+	District   string       `json:"district"`
+	State      string       `json:"state"`
+	Country    string       `json:"country"`
+	Defaultadd sql.NullBool `json:"defaultadd"`
+	Addressid  int64        `json:"addressid"`
 }
 
 func (q *Queries) UpdateAddress(ctx context.Context, arg UpdateAddressParams) (Address, error) {
 	row := q.db.QueryRowContext(ctx, updateAddress,
-		arg.Userid,
+		arg.UserID,
 		arg.Name,
 		arg.Phoneno,
 		arg.Houseno,
@@ -206,7 +206,7 @@ func (q *Queries) UpdateAddress(ctx context.Context, arg UpdateAddressParams) (A
 	var i Address
 	err := row.Scan(
 		&i.Addressid,
-		&i.Userid,
+		&i.UserID,
 		&i.Name,
 		&i.Phoneno,
 		&i.Houseno,

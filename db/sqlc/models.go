@@ -6,93 +6,96 @@ package db
 
 import (
 	"database/sql"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type Address struct {
-	Addressid  int32         `json:"addressid"`
-	Userid     sql.NullInt32 `json:"userid"`
-	Name       string        `json:"name"`
-	Phoneno    string        `json:"phoneno"`
-	Houseno    string        `json:"houseno"`
-	Area       string        `json:"area"`
-	Landmark   string        `json:"landmark"`
-	City       string        `json:"city"`
-	Pincode    string        `json:"pincode"`
-	District   string        `json:"district"`
-	State      string        `json:"state"`
-	Country    string        `json:"country"`
-	Defaultadd sql.NullBool  `json:"defaultadd"`
+	Addressid  int64        `json:"addressid"`
+	UserID     int64        `json:"user_id"`
+	Name       string       `json:"name"`
+	Phoneno    string       `json:"phoneno"`
+	Houseno    string       `json:"houseno"`
+	Area       string       `json:"area"`
+	Landmark   string       `json:"landmark"`
+	City       string       `json:"city"`
+	Pincode    string       `json:"pincode"`
+	District   string       `json:"district"`
+	State      string       `json:"state"`
+	Country    string       `json:"country"`
+	Defaultadd sql.NullBool `json:"defaultadd"`
 }
 
 type Admin struct {
-	ID             int32        `json:"id"`
-	FirstName      string       `json:"first_name"`
-	LastName       string       `json:"last_name"`
-	Email          string       `json:"email"`
-	HashedPassword string       `json:"hashed_password"`
-	Phone          int32        `json:"phone"`
-	IsAdmin        sql.NullBool `json:"is_admin"`
+	ID             int64  `json:"id"`
+	FirstName      string `json:"first_name"`
+	LastName       string `json:"last_name"`
+	Email          string `json:"email"`
+	HashedPassword string `json:"hashed_password"`
+	Phone          int32  `json:"phone"`
+	IsAdmin        bool   `json:"is_admin"`
 }
 
 type Brand struct {
-	ID        int32  `json:"id"`
+	ID        int64  `json:"id"`
 	BrandName string `json:"brand_name"`
 }
 
 type Cart struct {
-	ID         int32         `json:"id"`
+	ID         int64         `json:"id"`
 	ProductID  sql.NullInt32 `json:"product_id"`
 	Quantity   int32         `json:"quantity"`
 	Price      int32         `json:"price"`
 	TotalPrice int32         `json:"total_price"`
-	Userid     sql.NullInt32 `json:"userid"`
+	UserID     sql.NullInt32 `json:"user_id"`
 }
 
 type Catogery struct {
-	ID           int32          `json:"id"`
+	ID           int64          `json:"id"`
 	CatogeryName sql.NullString `json:"catogery_name"`
 }
 
 type Coupon struct {
-	ID            int32           `json:"id"`
+	ID            int64           `json:"id"`
 	CouponCode    sql.NullString  `json:"coupon_code"`
 	DiscountPrice sql.NullFloat64 `json:"discount_price"`
-	CreatedAt     sql.NullTime    `json:"created_at"`
+	CreatedAt     time.Time       `json:"created_at"`
 	Expired       sql.NullTime    `json:"expired"`
 }
 
 type Image struct {
-	ID        int32         `json:"id"`
+	ID        int64         `json:"id"`
 	ProductID sql.NullInt32 `json:"product_id"`
 	Image     string        `json:"image"`
 }
 
 type OderItem struct {
-	OrderID     int32          `json:"order_id"`
+	OrderID     int64          `json:"order_id"`
 	UserIDNo    int32          `json:"user_id_no"`
 	TotalAmount int32          `json:"total_amount"`
 	PaymentID   sql.NullInt32  `json:"payment_id"`
 	OrderStatus sql.NullString `json:"order_status"`
 	AddID       sql.NullInt32  `json:"add_id"`
-	CreatedAt   sql.NullTime   `json:"created_at"`
-	UpdatedAt   sql.NullTime   `json:"updated_at"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
 }
 
 type OrderDetail struct {
-	Oderid     int32         `json:"oderid"`
-	Userid     sql.NullInt32 `json:"userid"`
+	Oderid     int64         `json:"oderid"`
+	UserID     sql.NullInt32 `json:"user_id"`
 	Addressid  sql.NullInt32 `json:"addressid"`
 	PaymentID  sql.NullInt32 `json:"payment_id"`
 	OderItemID sql.NullInt32 `json:"oder_item_id"`
 	ProductID  sql.NullInt32 `json:"product_id"`
 	Quantity   int32         `json:"quantity"`
 	Status     string        `json:"status"`
-	CreatedAt  sql.NullTime  `json:"created_at"`
-	UpdatedAt  sql.NullTime  `json:"updated_at"`
+	CreatedAt  time.Time     `json:"created_at"`
+	UpdatedAt  time.Time     `json:"updated_at"`
 }
 
 type Payment struct {
-	PaymentID     int32         `json:"payment_id"`
+	PaymentID     int64         `json:"payment_id"`
 	UserID        sql.NullInt32 `json:"user_id"`
 	PaymentMethod string        `json:"payment_method"`
 	TotalAmount   int32         `json:"total_amount"`
@@ -101,7 +104,7 @@ type Payment struct {
 }
 
 type Product struct {
-	ProductID   int32         `json:"product_id"`
+	ProductID   int64         `json:"product_id"`
 	ProductName string        `json:"product_name"`
 	Description string        `json:"description"`
 	Stock       int32         `json:"stock"`
@@ -111,34 +114,45 @@ type Product struct {
 }
 
 type Razorpay struct {
-	Userid          int32          `json:"userid"`
+	UserID          int32          `json:"user_id"`
 	Razorpaymentid  string         `json:"razorpaymentid"`
 	Razorpayorderid sql.NullString `json:"razorpayorderid"`
 	Signature       sql.NullString `json:"signature"`
 	Amountpaid      sql.NullString `json:"amountpaid"`
 }
 
+type Session struct {
+	ID           uuid.UUID    `json:"id"`
+	UserID       int64        `json:"user_id"`
+	RefreshToken string       `json:"refresh_token"`
+	UserAgent    string       `json:"user_agent"`
+	ClientIp     string       `json:"client_ip"`
+	IsBlocked    bool         `json:"is_blocked"`
+	ExpiresAt    time.Time    `json:"expires_at"`
+	CreatedAt    sql.NullTime `json:"created_at"`
+}
+
 type User struct {
-	ID             int32          `json:"id"`
-	FirstName      string         `json:"first_name"`
-	LastName       string         `json:"last_name"`
-	Email          string         `json:"email"`
-	HashedPassword string         `json:"hashed_password"`
-	Phone          int32          `json:"phone"`
-	Otp            sql.NullString `json:"otp"`
-	IsBlocked      sql.NullBool   `json:"is_blocked"`
-	CreatedAt      sql.NullTime   `json:"created_at"`
-	UpdatedAt      sql.NullTime   `json:"updated_at"`
+	ID                int64     `json:"id"`
+	FirstName         string    `json:"first_name"`
+	LastName          string    `json:"last_name"`
+	Email             string    `json:"email"`
+	HashedPassword    string    `json:"hashed_password"`
+	Phone             int32     `json:"phone"`
+	Otp               string    `json:"otp"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	CreatedAt         time.Time `json:"created_at"`
+	UpdatedAt         time.Time `json:"updated_at"`
 }
 
 type Wallet struct {
-	ID     int32           `json:"id"`
+	ID     int64           `json:"id"`
 	UserID sql.NullInt32   `json:"user_id"`
 	Amount sql.NullFloat64 `json:"amount"`
 }
 
 type WalletHistory struct {
-	ID             int32           `json:"id"`
+	ID             int64           `json:"id"`
 	UserID         sql.NullInt32   `json:"user_id"`
 	Amount         sql.NullFloat64 `json:"amount"`
 	TransctionType sql.NullString  `json:"transction_type"`
@@ -146,7 +160,7 @@ type WalletHistory struct {
 }
 
 type Wishlist struct {
-	ID        int32         `json:"id"`
-	Userid    sql.NullInt32 `json:"userid"`
+	ID        int64         `json:"id"`
+	UserID    sql.NullInt32 `json:"user_id"`
 	ProductID sql.NullInt32 `json:"product_id"`
 }
