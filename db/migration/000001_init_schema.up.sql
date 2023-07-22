@@ -6,6 +6,7 @@ CREATE TABLE "users" (
   "hashed_password" VARCHAR(255) NOT NULL,
   "phone" INTEGER UNIQUE NOT NULL,
   "otp" VARCHAR(255) NOT NULL,
+  "is_email_verified" boolean NOT NULL DEFAULT false,
   "password_changed_at" timestamptz NOT NULL DEFAULT('0001-01-01 00:00:00Z'),  
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())

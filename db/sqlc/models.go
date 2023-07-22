@@ -140,6 +140,7 @@ type User struct {
 	HashedPassword    string    `json:"hashed_password"`
 	Phone             int32     `json:"phone"`
 	Otp               string    `json:"otp"`
+	IsEmailVerified   bool      `json:"is_email_verified"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`

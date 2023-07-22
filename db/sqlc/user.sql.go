@@ -7,7 +7,7 @@ package db
 
 import (
 	"context"
-	"time"
+	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -20,7 +20,7 @@ INSERT INTO users (
     otp
 ) VALUES (
     $1, $2, $3, $4, $5, $6
-) RETURNING id, first_name, last_name, email, hashed_password, phone, otp, password_changed_at, created_at, updated_at
+) RETURNING id, first_name, last_name, email, hashed_password, phone, otp, is_email_verified, password_changed_at, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -50,6 +50,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.HashedPassword,
 		&i.Phone,
 		&i.Otp,
+		&i.IsEmailVerified,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -67,7 +68,7 @@ func (q *Queries) DeleteUser(ctx context.Context, dollar_1 interface{}) error {
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, first_name, last_name, email, hashed_password, phone, otp, password_changed_at, created_at, updated_at FROM users 
+SELECT id, first_name, last_name, email, hashed_password, phone, otp, is_email_verified, password_changed_at, created_at, updated_at FROM users 
 WHERE id = $1 LIMIT 1
 `
 
@@ -82,6 +83,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id int64) (User, error) {
 		&i.HashedPassword,
 		&i.Phone,
 		&i.Otp,
+		&i.IsEmailVerified,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -90,7 +92,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id int64) (User, error) {
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, first_name, last_name, email, hashed_password, phone, otp, password_changed_at, created_at, updated_at FROM users
+SELECT id, first_name, last_name, email, hashed_password, phone, otp, is_email_verified, password_changed_at, created_at, updated_at FROM users
 `
 
 func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
@@ -110,6 +112,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 			&i.HashedPassword,
 			&i.Phone,
 			&i.Otp,
+			&i.IsEmailVerified,
 			&i.PasswordChangedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -128,26 +131,33 @@ func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
 }
 
 const updateUser = `-- name: UpdateUser :one
-UPDATE users SET
-    first_name = $1,
-    last_name = $2,
-    hashed_password = $3,
-    phone = $4,
-    otp = $5,
-    password_changed_at = $6,
-    updated_at = $7
-WHERE id = $8 RETURNING id, first_name, last_name, email, hashed_password, phone, otp, password_changed_at, created_at, updated_at
+UPDATE users
+SET
+  first_name = COALESCE($1, first_name),
+  last_name = COALESCE($2, last_name),
+  hashed_password = COALESCE($3, hashed_password),
+  phone = COALESCE($4, phone),
+  email = COALESCE($5, email),
+  otp = COALESCE($6, otp),
+  is_email_verified = COALESCE($7, is_email_verified),
+  password_changed_at = COALESCE($8, password_changed_at),
+  updated_at = COALESCE($9, updated_at)
+WHERE
+  id = $10
+RETURNING id, first_name, last_name, email, hashed_password, phone, otp, is_email_verified, password_changed_at, created_at, updated_at
 `
 
 type UpdateUserParams struct {
-	FirstName         string    `json:"first_name"`
-	LastName          string    `json:"last_name"`
-	HashedPassword    string    `json:"hashed_password"`
-	Phone             int32     `json:"phone"`
-	Otp               string    `json:"otp"`
-	PasswordChangedAt time.Time `json:"password_changed_at"`
-	UpdatedAt         time.Time `json:"updated_at"`
-	ID                int64     `json:"id"`
+	FirstName         sql.NullString `json:"first_name"`
+	LastName          sql.NullString `json:"last_name"`
+	HashedPassword    sql.NullString `json:"hashed_password"`
+	Phone             sql.NullInt32  `json:"phone"`
+	Email             sql.NullString `json:"email"`
+	Otp               sql.NullString `json:"otp"`
+	IsEmailVerified   sql.NullBool   `json:"is_email_verified"`
+	PasswordChangedAt sql.NullTime   `json:"password_changed_at"`
+	UpdatedAt         sql.NullTime   `json:"updated_at"`
+	ID                int64          `json:"id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
@@ -156,7 +166,9 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.LastName,
 		arg.HashedPassword,
 		arg.Phone,
+		arg.Email,
 		arg.Otp,
+		arg.IsEmailVerified,
 		arg.PasswordChangedAt,
 		arg.UpdatedAt,
 		arg.ID,
@@ -170,6 +182,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.HashedPassword,
 		&i.Phone,
 		&i.Otp,
+		&i.IsEmailVerified,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
