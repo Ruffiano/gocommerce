@@ -15,14 +15,17 @@ SELECT * FROM admins
 WHERE id = $1 LIMIT 1;
 
 -- name: UpdateAdmin :one
-UPDATE admins SET
-    first_name = $1,
-    last_name = $2,
-    email = $3,
-    hashed_password = $4,
-    phone = $5,
-    is_admin = $6
-WHERE id = $7 RETURNING *;
+UPDATE admins
+SET
+    first_name = COALESCE(sqlc.narg(first_name), first_name),
+    last_name = COALESCE(sqlc.narg(last_name), last_name),
+    email = COALESCE(sqlc.narg(email), email),  
+    hashed_password = COALESCE(sqlc.narg(hashed_password), hashed_password),
+    phone = COALESCE(sqlc.narg(phone), phone),
+    is_admin = COALESCE(sqlc.narg(is_admin), is_admin)
+WHERE
+    id = sqlc.arg(id)
+RETURNING *;
 
 -- name: DeleteAdmin :exec
 DELETE FROM admins WHERE id = $1;

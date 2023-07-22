@@ -47,7 +47,9 @@ CREATE TABLE "admins" (
   "email" VARCHAR(255) UNIQUE NOT NULL,
   "hashed_password" VARCHAR(255) NOT NULL,
   "phone" INTEGER UNIQUE NOT NULL,
-  "is_admin" boolean NOT NULL DEFAULT false
+  "is_admin" boolean NOT NULL DEFAULT false,
+  "created_at" timestamptz NOT NULL DEFAULT (now()),
+  "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE "catogeries" (

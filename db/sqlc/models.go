@@ -28,13 +28,15 @@ type Address struct {
 }
 
 type Admin struct {
-	ID             int64  `json:"id"`
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	Email          string `json:"email"`
-	HashedPassword string `json:"hashed_password"`
-	Phone          int32  `json:"phone"`
-	IsAdmin        bool   `json:"is_admin"`
+	ID             int64     `json:"id"`
+	FirstName      string    `json:"first_name"`
+	LastName       string    `json:"last_name"`
+	Email          string    `json:"email"`
+	HashedPassword string    `json:"hashed_password"`
+	Phone          int32     `json:"phone"`
+	IsAdmin        bool      `json:"is_admin"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 type Brand struct {

@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createAdmin = `-- name: CreateAdmin :one
@@ -19,7 +20,7 @@ INSERT INTO admins (
     is_admin
 ) VALUES (
     $1, $2, $3, $4, $5, $6
-) RETURNING id, first_name, last_name, email, hashed_password, phone, is_admin
+) RETURNING id, first_name, last_name, email, hashed_password, phone, is_admin, created_at, updated_at
 `
 
 type CreateAdminParams struct {
@@ -49,6 +50,8 @@ func (q *Queries) CreateAdmin(ctx context.Context, arg CreateAdminParams) (Admin
 		&i.HashedPassword,
 		&i.Phone,
 		&i.IsAdmin,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -63,7 +66,7 @@ func (q *Queries) DeleteAdmin(ctx context.Context, id int64) error {
 }
 
 const getAdminByID = `-- name: GetAdminByID :one
-SELECT id, first_name, last_name, email, hashed_password, phone, is_admin FROM admins 
+SELECT id, first_name, last_name, email, hashed_password, phone, is_admin, created_at, updated_at FROM admins 
 WHERE id = $1 LIMIT 1
 `
 
@@ -78,12 +81,14 @@ func (q *Queries) GetAdminByID(ctx context.Context, id int64) (Admin, error) {
 		&i.HashedPassword,
 		&i.Phone,
 		&i.IsAdmin,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const listAdmins = `-- name: ListAdmins :many
-SELECT id, first_name, last_name, email, hashed_password, phone, is_admin FROM admins
+SELECT id, first_name, last_name, email, hashed_password, phone, is_admin, created_at, updated_at FROM admins
 `
 
 func (q *Queries) ListAdmins(ctx context.Context) ([]Admin, error) {
@@ -103,6 +108,8 @@ func (q *Queries) ListAdmins(ctx context.Context) ([]Admin, error) {
 			&i.HashedPassword,
 			&i.Phone,
 			&i.IsAdmin,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -118,24 +125,27 @@ func (q *Queries) ListAdmins(ctx context.Context) ([]Admin, error) {
 }
 
 const updateAdmin = `-- name: UpdateAdmin :one
-UPDATE admins SET
-    first_name = $1,
-    last_name = $2,
-    email = $3,
-    hashed_password = $4,
-    phone = $5,
-    is_admin = $6
-WHERE id = $7 RETURNING id, first_name, last_name, email, hashed_password, phone, is_admin
+UPDATE admins
+SET
+    first_name = COALESCE($1, first_name),
+    last_name = COALESCE($2, last_name),
+    email = COALESCE($3, email),  
+    hashed_password = COALESCE($4, hashed_password),
+    phone = COALESCE($5, phone),
+    is_admin = COALESCE($6, is_admin)
+WHERE
+    id = $7
+RETURNING id, first_name, last_name, email, hashed_password, phone, is_admin, created_at, updated_at
 `
 
 type UpdateAdminParams struct {
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	Email          string `json:"email"`
-	HashedPassword string `json:"hashed_password"`
-	Phone          int32  `json:"phone"`
-	IsAdmin        bool   `json:"is_admin"`
-	ID             int64  `json:"id"`
+	FirstName      sql.NullString `json:"first_name"`
+	LastName       sql.NullString `json:"last_name"`
+	Email          sql.NullString `json:"email"`
+	HashedPassword sql.NullString `json:"hashed_password"`
+	Phone          sql.NullInt32  `json:"phone"`
+	IsAdmin        sql.NullBool   `json:"is_admin"`
+	ID             int64          `json:"id"`
 }
 
 func (q *Queries) UpdateAdmin(ctx context.Context, arg UpdateAdminParams) (Admin, error) {
@@ -157,6 +167,8 @@ func (q *Queries) UpdateAdmin(ctx context.Context, arg UpdateAdminParams) (Admin
 		&i.HashedPassword,
 		&i.Phone,
 		&i.IsAdmin,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
